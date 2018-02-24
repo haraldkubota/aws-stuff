@@ -1,0 +1,17 @@
+{
+  "name": "aws-stuff",
+  "version": "1.0.0",
+  "description": "Various AWS SDK scripts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  ***REMOVED***,
+  "keywords": [
+    "aws"
+***REMOVED***,
+  "author": "Harald Kubota",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.202.0"
+  ***REMOVED***
+***REMOVED***
