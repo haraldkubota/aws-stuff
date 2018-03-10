@@ -1,76 +1,206 @@
-{
-  "AWSTemplateFormatVersion" : "2010-09-09",
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  AWS CloudFormation Sample Template Route53_A: Build EC2 instance with current
+  AWS Linux and create a DNS entry in aws.qw2.org
+Parameters:
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: t2.nano
+    AllowedValues:
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - m5.large
+    ConstraintDescription: must be a valid EC2 instance type.
+  HostedZone:
+    Type: String
+    Description: The DNS name of an existing Amazon Route 53 hosted zone
+    AllowedPattern: '(?!-)[a-zA-Z0-9-.]{1,63***REMOVED***(?<!-)'
+    Default: aws.qw2.org
+    ConstraintDescription: must be a valid DNS zone name.
+Mappings:
+  AWSInstanceType2Arch:
+    t2.nano:
+      Arch: HVM64
+    t2.micro:
+      Arch: HVM64
+    t2.small:
+      Arch: HVM64
+    t2.medium:
+      Arch: HVM64
+    t2.large:
+      Arch: HVM64
+    m5.large:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+    us-east-1:
+      HVM64: ami-428aa838
+      HVMG2: NOT_SUPPORTED
+    us-west-2:
+      HVM64: ami-7f43f307
+      HVMG2: NOT_SUPPORTED
+    us-west-1:
+      HVM64: ami-4a787a2a
+      HVMG2: NOT_SUPPORTED
+    eu-west-1:
+      HVM64: ami-db1688a2
+      HVMG2: NOT_SUPPORTED
+    ap-northeast-1:
+      HVM64: ami-c2680fa4
+      HVMG2: NOT_SUPPORTED
+    us-east-2:
+      HVM64: ami-710e2414
+      HVMG2: NOT_SUPPORTED
 
-  "Description" : "AWS CloudFormation Sample Template Route53_A: Build EC2 instance with current AWS Linux and create a DNS entry in aws.qw2.org",
+Resources:
 
-  "Parameters" : {
-    "InstanceType" : {
-      "Description" : "WebServer EC2 instance type",
-      "Type" : "String",
-      "Default" : "t2.micro",
-      "AllowedValues" : [ "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "m4.large" ],
-      "ConstraintDescription" : "must be a valid EC2 instance type."
-    ***REMOVED***,
+  myVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.3.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: CFVPC
 
-    "HostedZone" : {
-      "Type" : "String",
-      "Description" : "The DNS name of an existing Amazon Route 53 hosted zone",
-      "AllowedPattern" : "(?!-)[a-zA-Z0-9-.]{1,63***REMOVED***(?<!-)",
-      "Type": "String",
-      "Default": "aws.qw2.org",
-      "ConstraintDescription" : "must be a valid DNS zone name."
-    ***REMOVED***
-  ***REMOVED***,
+  myInternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: myInternetGateway
 
-  "Mappings" : {
-    "AWSInstanceType2Arch" : {
-      "t2.nano"     : { "Arch" : "HVM64"  ***REMOVED***,
-      "t2.micro"    : { "Arch" : "HVM64"  ***REMOVED***,
-      "t2.small"    : { "Arch" : "HVM64"  ***REMOVED***,
-      "t2.medium"   : { "Arch" : "HVM64"  ***REMOVED***,
-      "t2.large"    : { "Arch" : "HVM64"  ***REMOVED***,
-      "m4.large"    : { "Arch" : "HVM64"  ***REMOVED***
-    ***REMOVED***,
-    # HVMG2 is not used and not updated
-    # HVM64 imges are Amazon Linux 2
-    "AWSRegionArch2AMI" : {
-      "us-east-1"        : {"HVM64" : "ami-428aa838", "HVMG2" : "ami-0a6e3770"***REMOVED***,
-      "us-west-2"        : {"HVM64" : "ami-7f43f307", "HVMG2" : "ami-ee15a196"***REMOVED***,
-      "us-west-1"        : {"HVM64" : "ami-4a787a2a", "HVMG2" : "ami-0da4a46d"***REMOVED***,
-      "eu-west-1"        : {"HVM64" : "ami-db1688a2", "HVMG2" : "ami-af8013d6"***REMOVED***,
-      "ap-northeast-1"   : {"HVM64" : "ami-c2680fa4", "HVMG2" : "ami-edfd658b"***REMOVED***,
-      "us-east-2"        : {"HVM64" : "ami-710e2414", "HVMG2" : "NOT_SUPPORTED"***REMOVED***
-    ***REMOVED***
+  GatewayToInternet:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId:
+        Ref: myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
+  
+  myRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId:
+        Ref: myVPC
+      Tags:
+        - Key: Name
+          Value: myRT
 
-  ***REMOVED***,
+  myRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: GatewayToInternet
+    Properties:
+      RouteTableId:
+        Ref: myRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: myInternetGateway
 
-  "Resources" : {
-    "EC2Instance" : {
-      "Type" : "AWS::EC2::Instance",
-      "Properties" : {
-        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" ***REMOVED***,
-                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" ***REMOVED***, "Arch" ] ***REMOVED*** ] ***REMOVED***,
-        "InstanceType" : { "Ref" : "InstanceType" ***REMOVED***
-      ***REMOVED***
-    ***REMOVED***,
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId:
+        Ref: myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
 
-    "MyDNSRecord" : {
-      "Type" : "AWS::Route53::RecordSet",
-      "Properties" : {
-        "HostedZoneName" : { "Fn::Join" : [ "", [{"Ref" : "HostedZone"***REMOVED***, "." ]]***REMOVED***,
-        "Comment" : "DNS name for my instance.",
-        "Name" : { "Fn::Join" : [ "", [{"Ref" : "EC2Instance"***REMOVED***, ".", {"Ref" : "AWS::Region"***REMOVED***, ".", {"Ref" : "HostedZone"***REMOVED*** ,"."]]***REMOVED***,
-        "Type" : "A",
-        "TTL" : "900",
-        "ResourceRecords" : [ { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] ***REMOVED*** ]
-      ***REMOVED***
-    ***REMOVED***
-  ***REMOVED***,
+  mySubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref myVPC
+      CidrBlock: 10.3.1.0/24
+      MapPublicIpOnLaunch: 'true'
 
-  "Outputs" : {
-    "DomainName" : {
-      "Description" : "Fully qualified domain name",
-      "Value" : { "Ref" : "MyDNSRecord" ***REMOVED***
-    ***REMOVED***
-  ***REMOVED***
-***REMOVED***
+  PublicSubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId:
+        Ref: mySubnet
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Allow http, https, ssh to client host'
+      VpcId: !Ref myVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          ToPort: '80'
+          FromPort: '80'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          ToPort: '443'
+          FromPort: '443'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          ToPort: '22'
+          FromPort: '22'
+          CidrIp: 0.0.0.0/0
+
+  myRole:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Roles:
+      - MyEC2Role
+
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          files:
+            /tmp/test.sh:
+              content: !Sub |
+                #!/bin/bash
+                echo "I exist, therefore I am"
+              mode: '000755'
+              owner: 'ec2-user'
+              group: 'users'
+          commands:
+            updateYum:
+              command: 'yum update -y >> /tmp/yum.update.txt'
+    Properties:
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref AWS::Region
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - !Ref InstanceType
+          - Arch
+      InstanceType: !Ref InstanceType
+      KeyName: aws
+      IamInstanceProfile: !Ref myRole
+      SecurityGroupIds:
+        - !Ref mySG
+      SubnetId: !Ref mySubnet
+      UserData:
+        'Fn::Base64': !Sub |
+          #!/bin/bash -ex
+          trap '/opt/aws/bin/cfn-signal -e 1 --region ${AWS::Region***REMOVED*** --stack ${AWS::StackName***REMOVED*** --resource VirtualMachine' ERR
+          ${UserData***REMOVED***
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName***REMOVED*** --resource VirtualMachine --region ${AWS::Region***REMOVED***
+          /opt/aws/bin/cfn-signal -e 0 --region ${AWS::Region***REMOVED*** --stack ${AWS::StackName***REMOVED*** --resource VirtualMachine        
+
+
+  myDNSRecord:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneName: !Join ['', [!Ref HostedZone, '.']]
+      Comment: 'DNS name for my instance.'
+      Name: !Join ['', [!Ref EC2Instance, '.', !Ref 'AWS::Region', '.', !Ref HostedZone, '.']] 
+      Type: A
+      TTL: '900'
+      ResourceRecords:
+        - !GetAtt [EC2Instance, PublicIp]
+
+Outputs:
+  DomainName:
+    Description: 'Fully qualified domain name'
+    Value: !Ref myDNSRecord
