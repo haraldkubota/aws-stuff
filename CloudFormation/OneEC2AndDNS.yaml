@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-  AWS CloudFormation Sample Template Route53_A: Build EC2 instance with current
+  AWS Build EC2 instance with current
   AWS Linux and create a DNS entry in aws.qw2.org
 Parameters:
   InstanceType:
@@ -152,20 +152,6 @@ Resources:
 
   EC2Instance:
     Type: 'AWS::EC2::Instance'
-    Metadata:
-      AWS::CloudFormation::Init:
-        config:
-          files:
-            /tmp/test.sh:
-              content: !Sub |
-                #!/bin/bash
-                echo "I exist, therefore I am"
-              mode: '000755'
-              owner: 'ec2-user'
-              group: 'users'
-          commands:
-            updateYum:
-              command: 'yum update -y >> /tmp/yum.update.txt'
     Properties:
       ImageId: !FindInMap 
         - AWSRegionArch2AMI
@@ -180,13 +166,6 @@ Resources:
       SecurityGroupIds:
         - !Ref mySG
       SubnetId: !Ref mySubnet
-      UserData:
-        'Fn::Base64': !Sub |
-          #!/bin/bash -ex
-          trap '/opt/aws/bin/cfn-signal -e 1 --region ${AWS::Region***REMOVED*** --stack ${AWS::StackName***REMOVED*** --resource VirtualMachine' ERR
-          ${UserData***REMOVED***
-          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName***REMOVED*** --resource VirtualMachine --region ${AWS::Region***REMOVED***
-          /opt/aws/bin/cfn-signal -e 0 --region ${AWS::Region***REMOVED*** --stack ${AWS::StackName***REMOVED*** --resource VirtualMachine        
 
 
   myDNSRecord:
