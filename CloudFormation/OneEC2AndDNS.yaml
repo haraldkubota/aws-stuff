@@ -49,7 +49,7 @@ Mappings:
       HVM64: ami-db1688a2
       HVMG2: NOT_SUPPORTED
     ap-northeast-1:
-      HVM64: ami-c2680fa4
+      HVM64: ami-8fbab2f3
       HVMG2: NOT_SUPPORTED
     us-east-2:
       HVM64: ami-710e2414

@@ -1,0 +1,1 @@
+aws cloudformation create-stack --stack-name OneSmallVM --template-body file://OneEC2AndDNS.yaml --parameters InstanceType=t2.nano

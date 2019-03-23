@@ -2,9 +2,10 @@
   "name": "aws-stuff",
   "version": "1.0.0",
   "description": "Various AWS SDK scripts",
-  "main": "index.js",
+  "main": "find-latest-ami.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node find-latest-ami.js"
   ***REMOVED***,
   "keywords": [
     "aws"
@@ -12,6 +13,6 @@
   "author": "Harald Kubota",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.202.0"
+    "aws-sdk": "^2.427.0"
   ***REMOVED***
 ***REMOVED***
