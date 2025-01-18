@@ -32,3 +32,7 @@ variable "environment" {
   type    = string
   default = "Dev"
 ***REMOVED***
+
+variable "cloudflare_api_token" {
+  type = string
+***REMOVED***
