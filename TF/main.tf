@@ -44,7 +44,7 @@
 ***REMOVED***
 
 ***REMOVED***
-  zone_id = "7b11f608d688a1919dcc6efa72d2d608"
+  zone_id = "${var.cloudflare_dns_id***REMOVED***"
 ***REMOVED***
 ***REMOVED***
 ***REMOVED***

@@ -36,3 +36,7 @@ variable "environment" {
 variable "cloudflare_api_token" {
   type = string
 ***REMOVED***
+
+variable "cloudflare_dns_id" {
+  type = string
+***REMOVED***
