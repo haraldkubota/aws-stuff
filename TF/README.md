@@ -9,5 +9,14 @@ The example creates:
 Use like this:
 
 ```
-❯ TF_VAR_cloudflare_api_token=CF_API_TOKEN tofu destroy -auto-approve
+❯ source .env
+❯ tofu apply -auto-approve
 ```
+
+with .env containing your API tokens, like:
+
+```
+export TF_VAR_cloudflare_dns_id="YOUR_ZONE_ID"
+export TF_VAR_cloudflare_api_token="YOUR_API_TOKEN"
+```
+
