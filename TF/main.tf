@@ -44,7 +44,7 @@ resource "aws_instance" "my_ec2" {
 }
 
 resource "cloudflare_dns_record" "ec2_qw2_dns_record" {
-  zone_id = "i${var.cloudflare_dns_id}"
+  zone_id = "${var.cloudflare_dns_id}"
   comment = "My EC2 Instance"
   content = aws_instance.my_ec2.public_ip
   name    = "myec2"
